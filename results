@@ -1,0 +1,55 @@
+DSP: 5
+BRAM: 5
+Unit_Size: 18kbit
+Bandwidth: 5
+Bandwidth Unit: gbs
+Target Clock Rate: 5
+DSP Resource Usage Amount: 5
+DSP Resource Unit: percent
+BRAM Resource Usage Amount: percent
+BRAM Resource Unit: percent
+Bandwidth Resource Usage Amount: percent
+Bandwidth Resource Unit: percent
+CNN Layers: [object Object],[object Object],[object Object],[object Object]
+Here is what those objects above look like: 
+[
+    {
+        "layerParent": [],
+        "layerID": 0,
+        "count": "1",
+        "i": "8",
+        "o": "8",
+        "layerString": "ID: 0, Count: 1, I: 8, O: 8"
+    },
+    {
+        "layerParent": [
+            0
+        ],
+        "layerID": 1,
+        "count": "0",
+        "i": "8",
+        "o": "0",
+        "layerString": "ID: 1, Count: 0, I: 8, O: 0"
+    },
+    {
+        "layerParent": [
+            0
+        ],
+        "layerID": 2,
+        "count": "0",
+        "i": "0",
+        "o": "09",
+        "layerString": "ID: 2, Count: 0, I: 0, O: 09"
+    },
+    {
+        "layerParent": [
+            1,
+            2
+        ],
+        "layerID": 3,
+        "count": "15",
+        "i": "5",
+        "o": "5",
+        "layerString": "ID: 3, Count: 15, I: 5, O: 5"
+    }
+]

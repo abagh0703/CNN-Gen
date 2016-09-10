@@ -1,0 +1,1197 @@
+<!doctype html>
+<!--[if lt IE 7]>
+<html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>
+<html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>
+<html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang=""> <!--<![endif]-->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>COMPAS Lab CNN Generator</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--<link rel="stylesheet" href="css/bootstrap.min.css">-->
+    <style>
+        body {
+            padding-top: 50px;
+            padding-bottom: 20px;
+            background-image: url(img/congruent_pentagon.png);
+        }
+
+        label.red {
+            color: red;
+            left: 10px;
+            position: relative;
+        }
+
+        label {
+            white-space: nowrap;
+        }
+
+        .question {
+            color: gray;
+            font-size: 10px;
+        }
+
+        .loading {
+            background-color: #eaeaea;
+            color: #bebebe;
+            cursor: default;
+            border-color: transparent
+        }
+
+        #cnnOptions .input-control {
+            width: 60px;
+        }
+
+        #cnnOptions input {
+            margin-top: 2px;
+        }
+
+        #sortable {
+            list-style-type: none;
+            padding-left: 0;
+            margin-left: 0;
+            cursor: pointer;
+        }
+
+        #sortable li {
+            border: 1px solid #c5c5c5;
+            background: #f6f6f6;
+            color: #454545;
+            display: list-item;
+            text-align: -webkit-match-parent;
+            margin: 0 0 3px 0;
+            padding-right: .5em;
+            padding-top: 6px;
+            height: 35px;
+            touch-action: none;
+        }
+
+        #sortable li span.moveLayer {
+            position: absolute;
+            left: 10px;
+            margin-top: 3px;
+        }
+
+        #sortable li span.deleteLayer {
+            position: absolute;
+            right: 10px;
+            margin-top: 3px;
+            padding: 10px;
+        }
+    </style>
+    <!--<link rel="stylesheet" href="css/bootstrap-theme.min.css">-->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/metro.min.css">
+    <link rel="stylesheet" href="css/metro-colors.min.css">
+    <link rel="stylesheet" href="css/metro-icons.min.css">
+    <link rel="stylesheet" href="css/metro-responsive.min.css">
+    <link rel="stylesheet" href="css/metro-rtl.min.css">
+    <link rel="stylesheet" href="css/metro-schemes.min.css">
+    <link rel="stylesheet" href="css/jquery-ui.min.css">
+    <link rel="stylesheet" href="css/mermaid.forest.css">
+    <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+</head>
+<body style="width:100%;">
+<!--[if lt IE 8]>
+<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
+    your browser</a> to improve your experience.</p>
+<![endif]-->
+
+<div class="grid" style="margin-left:50px;margin-right:50px;">
+    <!-- Example row of columns -->
+    <div class="row cells1">
+        <div class="cell offset3">
+
+            <!--<p><a class="btn btn-default" href="#" role="button">View details &raquo;</a></p>-->
+        </div>
+    </div>
+    <div class="row cells6">
+        <div class="cell">
+            <p></p>
+        </div>
+        <div class="cell colspan4" style="text-align:center;">
+            <h2>Convolutional Neural Network Code Generator</h2>
+
+            <p>Please enter the parameters of your convolutional neural network in the fields below. The Verilog or
+                Bluespec code will be sent to you soon after form submission.</p>
+
+            <div class="login-form">
+                <form id="mainForm">
+                    <!--<h1 class="text-light">Enter Parameters</h1>-->
+                    <!--<hr class="thin"/>-->
+                    <br/>
+
+                    <!--***-->
+                    <!--Begin ANN Layer Creator-->
+                    <!--***-->
+
+                    <!--Begin Predefined CNN-->
+                    <p class="header">CNN Layers</p>
+
+                    <div>
+                        <label style="cursor:default;">CNN Model
+                            <span
+                                    data-role="hint"
+                                    data-hint-background="bg-amber"
+                                    data-hint-position="right"
+                                    data-hint-color="fg-white"
+                                    data-hint-mode="2"
+                                    data-hint="|The CNN model you are using">
+                                <span class="v-align-super question">(?)</span>
+                            </span>
+                        </label>
+                        <br/>
+
+                        <div class="input-control select">
+                            <select name="cnnSelect" id="cnnSelect" data-rule-oneormorelayers="true">
+                                <option value="custom" data-custom="1" selected id="customNetwork">Not Listed/Custom
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <!--End predefined CNN-->
+
+                    <!--Begin type of layer-->
+                    <div>
+                        <label style="cursor:default;">Type of layer
+                            <span
+                                    data-role="hint"
+                                    data-hint-background="bg-amber"
+                                    data-hint-position="right"
+                                    data-hint-color="fg-white"
+                                    data-hint-mode="2"
+                                    data-hint="|The type of layer you want to add">
+                                <span class="v-align-super question">(?)</span>
+                            </span>
+                        </label>
+                        <br/>
+
+                        <div class="input-control select">
+                            <select name="layerSelect" id="layerSelect">
+                                <option value="convLayer" selected id="convLayer">Convolutional Layer</option>
+                                <option value="paddingLayer" id="paddingLayer">Padding Layer</option>
+                                <option value="subSampleLayer" id="subSampleLayer">Subsampling Layer</option>
+								<option value="fcLayer" id="fcLayer">Fully Connected Layer</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!--End type of layer-->
+
+                    <!--Begin options for layer-->
+                    <div id="cnnOptions" style="margin-top:15px;">
+                        <label id="cnnOptionsLabel" style="cursor:default;">Provide info and then add a layer to your
+                            CNN
+                            <span
+                                    data-role="hint"
+                                    data-hint-background="bg-amber"
+                                    data-hint-position="right"
+                                    data-hint-color="fg-white"
+                                    data-hint-mode="2"
+                                    data-hint="|Provide information about your layer and then click 'add' to add a layer">
+                                <span class="v-align-super question">(?)</span>
+                            </span>
+                        </label>
+                        <br/>
+
+                        <div id="layerInputs">  <!-- the layer-specific inputs -->
+                            <!--BEGIN Inputs option-->
+                            <div class="input-control text">
+                                I
+                            <span
+                                    data-role="hint"
+                                    data-hint-background="bg-amber"
+                                    data-hint-position="right"
+                                    data-hint-color="fg-white"
+                                    data-hint-mode="2"
+                                    data-hint="|Inputs">
+                                <span class="v-align-super question">(?)</span>
+                            </span>
+                                <input type="number" id="i">
+                            </div>
+                            <!--END Inputs option-->
+                            <!--BEGIN Outputs-->
+                            <div class="input-control text">
+                                O
+                            <span
+                                    data-role="hint"
+                                    data-hint-background="bg-amber"
+                                    data-hint-position="right"
+                                    data-hint-color="fg-white"
+                                    data-hint-mode="2"
+                                    data-hint="|Outputs">
+                                <span class="v-align-super question">(?)</span>
+                            </span>
+                                <input type="number" id="o">
+                            </div>
+							<div class="input-control text">-->
+								F
+                                <span
+                                        data-role="hint"
+                                        data-hint-background="bg-amber"
+                                        data-hint-position="right"
+                                        data-hint-color="fg-white"
+                                        data-hint-mode="2"
+                                        data-hint="|Perceptron Field Size">
+                                <span class="v-align-super question">(?)</span>
+                            </span>
+								<input type="number" id="f">
+							</div>
+                            <!--END Outputs-->
+
+                            <!--<div class="input-control text">-->
+                                <!--R<input type="number" id="r">-->
+                            <!--</div>-->
+                            <!--<div class="input-control text">-->
+                                <!--C<input type="number" id="c">-->
+                            <!--</div>-->
+                            <!--<div class="input-control text">-->
+                                <!--K<input type="number" id="k">-->
+                            <!--</div>-->
+                            <!--<div class="input-control text">-->
+                                <!--S<input type="number" id="s">-->
+                            <!--</div>-->
+                        </div>
+<<<<<<< HEAD
+                        <div class="input-control text" style="width:350px;margin-top:22px;">
+                            Parent ID (separate multiple parents with commas)<input type="text" id="parentID" disabled>
+=======
+                        <div class="input-control text" style="width:100px;">
+                            Parent ID<input type="number" id="parentID" disabled>
+>>>>>>> b6fcecf... bare minimum visual display for flowchart
+                        </div>
+                        <!--<div class="input-control text" style="width:400px;">-->
+                        <!--Child ID (optional, separate multiple children with commas)<input type="text" id="childID" disabled>-->
+                        <!--</div>-->
+                    </div>
+                    <div>
+                        <button id="addLayerButton" class="button primary" style="margin-top: 20px;">Add Layer</button>
+                    </div>
+                    <!--End options for layer-->
+
+                    <!--Begin layer order table-->
+                    <ul id="sortable">
+                    </ul>
+                    <!--End layer order table-->
+
+                    <!--***-->
+                    <!--End ANN Layer Creator-->
+                    <!--***-->
+                    <div class="mermaid" id="layerFlow">
+                        graph TD;
+<<<<<<< HEAD
+                        1[This is where the flowchart for your CNN will be displayed.]
+
+                    </div>
+                    <!--<div class="mermaid">-->
+                    <!--graph TD;-->
+                    <!--1[1];-->
+                    <!--2[2];-->
+                    <!--3[3];-->
+                    <!--1&ndash;&gt;2;-->
+                    <!--1&ndash;&gt;3;-->
+=======
+                        1[1];
+                    </div>
+                    <!--<div class="mermaid">-->
+                        <!--graph TD;-->
+                        <!--1[1];-->
+                        <!--2[2];-->
+                        <!--3[3];-->
+                        <!--1&ndash;&gt;2;-->
+                        <!--1&ndash;&gt;3;-->
+>>>>>>> b6fcecf... bare minimum visual display for flowchart
+                    <!--</div>-->
+
+                    <!--***-->
+                    <!--Begin FPGA Board Details-->
+                    <!--***-->
+
+                    <!--Select FPGA Board-->
+                    <p class="header">Your FPGA Board</p>
+
+                    <div>
+                        <label style="cursor:default;">FPGA Board
+                            <span
+                                    data-role="hint"
+                                    data-hint-background="bg-amber"
+                                    data-hint-position="right"
+                                    data-hint-color="fg-white"
+                                    data-hint-mode="2"
+                                    data-hint="|The FPGA model being used">
+                                <span class="v-align-super question">(?)</span>
+                            </span>
+                        </label>
+                        <br/>
+
+                        <div class="input-control select">
+                            <select id="fpgaBoard">
+                                <option value="custom" selected>Not Listed/Custom</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!--End Select FPGA Board-->
+
+
+                    <div id="customFpgaDetails">
+                        <!--Select DSP-->
+                        <div>
+                            <label style="cursor:default;">DSP
+                            <span
+                                    data-role="hint"
+                                    data-hint-background="bg-amber"
+                                    data-hint-position="right"
+                                    data-hint-color="fg-white"
+                                    data-hint-mode="2"
+                                    data-hint="|The amount of DSP in the board">
+                                <span class="v-align-super question">(?)</span>
+                            </span>
+                            </label>
+                            <br/>
+
+                            <div class="input-control text">
+                                <input type="number" name="dsp" id="dsp" placeholder="DSP">
+                            </div>
+                        </div>
+                        <!--End Select DSP-->
+
+                        <!--Select BRAM Usage-->
+                        <div>
+                            <label style="cursor:default;">BRAM
+                            <span
+                                    data-role="hint"
+                                    data-hint-background="bg-amber"
+                                    data-hint-position="right"
+                                    data-hint-color="fg-white"
+                                    data-hint-mode="2"
+                                    data-hint="|The amount of BRAM for the board">
+                                <span class="v-align-super question">(?)</span>
+                            </span>
+                            </label>
+                            <br/>
+
+                            <div class="input-control text">
+                                <input type="number" name="bram" id="bram" placeholder="BRAM">
+                            </div>
+                            <div class="input-control select" style="width:80px;">
+                                <select name="bramUnit" id="bramUnits">
+                                    <option value="18kbit" selected>18KBit</option>
+                                    <option value="36kbit">36KBit</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!--End Specify BRAM-->
+                    </div>
+                    <!--Select Bandwidth Amount-->
+                    <div>
+                        <label style="cursor:default;">Bandwidth
+                            <span
+                                    data-role="hint"
+                                    data-hint-background="bg-amber"
+                                    data-hint-position="right"
+                                    data-hint-color="fg-white"
+                                    data-hint-mode="2"
+                                    data-hint="|The amount of bandwidth for the board">
+                                <span class="v-align-super question">(?)</span>
+                            </span>
+                        </label>
+                        <br/>
+
+                        <div class="input-control text">
+                            <input type="number" name="bandwidth" id="bandwidth" placeholder="Bandwidth">
+                        </div>
+                        <div class="input-control select" style="width:80px;">
+                            <select name="bandwidthUnit" id="bandwidthUnits">
+                                <option value="gbs" selected>GB/s</option>
+                                <option value="mbs">MB/s</option>
+                                <option value="kbs">KB/s</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!--End Specify Bandwidth-->
+                    <!--***-->
+                    <!--End FPGA Board Details-->
+                    <!--***-->
+                    <br/>
+
+                    <!--***-->
+                    <!--Begin FPGA Resource Usage-->
+                    <!--***-->
+                    <p class="header" style="margin-bottom: -9px;;">FPGA Resource Allocation</p>
+                    <h4>
+                        <!--<small>-->
+                        <!--</small>-->
+                    </h4>
+                    <!--Begin DSP Resource Usage-->
+                    <div>
+                        <label style="cursor:default;">How much of your board's DSP do you want to devote towards the
+                            CNN?
+                            <span
+                                    data-role="hint"
+                                    data-hint-background="bg-amber"
+                                    data-hint-position="right"
+                                    data-hint-color="fg-white"
+                                    data-hint-mode="2"
+                                    data-hint="|How much of your board's DSP do you want to devote towards the CNN?">
+                                <span class="v-align-super question">(?)</span>
+                            </span>
+                        </label>
+                        <br/>
+
+                        <div class="input-control text">
+                            <input type="number" name="dspResources" id="dspResources" placeholder="Amount of DSP">
+                        </div>
+                        <div class="input-control select" style="width:80px;">
+                            <select name="dspResourceUnit" id="dspResourceUnits">
+                                <option selected value="percent">%</option>
+                                <option value="units">Units</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!--End DSP Resource Usage-->
+
+                    <!--Begin BRAM Resource Usage-->
+                    <div>
+                        <label style="cursor:default;">How much of your board's BRAM do you want to devote towards the
+                            CNN?
+                            <span
+                                    data-role="hint"
+                                    data-hint-background="bg-amber"
+                                    data-hint-position="right"
+                                    data-hint-color="fg-white"
+                                    data-hint-mode="2"
+                                    data-hint="|The amount of the board's BRAM you are willing to devote to this CNN">
+                                <span class="v-align-super question">(?)</span>
+                            </span>
+                        </label>
+                        <br/>
+
+                        <div class="input-control text">
+                            <input type="number" name="bramResources" id="bramResources" placeholder="Amount of BRAM">
+                        </div>
+                        <div class="input-control select" style="width:80px;">
+                            <select name="bramResourceUnit" id="BramResourceUnits">
+                                <option selected value="percent">%</option>
+                                <option value="18kbit">18 KBit</option>
+                                <option value="36kbit">36 KBit</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!--End BRAM Resource Usage-->
+
+                    <!--Select Bandwidth Resource Amount-->
+                    <div>
+                        <label style="cursor:default;">How much of your board's bandwidth do you want to devote towards
+                            the CNN?
+                            <span
+                                    data-role="hint"
+                                    data-hint-background="bg-amber"
+                                    data-hint-position="right"
+                                    data-hint-color="fg-white"
+                                    data-hint-mode="2"
+                                    data-hint="|The amount of bandwidth that you would like to devote for the network">
+                                <span class="v-align-super question">(?)</span>
+                            </span>
+                        </label>
+                        <br/>
+
+                        <div class="input-control text">
+                            <input type="number" name="bandwidthResources" id="bandwidthResources"
+                                   placeholder="Amount of Bandwidth">
+                        </div>
+                        <div class="input-control select" style="width:80px;">
+                            <select name="bandwidthResourceUnit" id="bandwidthResourceUnits">
+                                <option value="percent" selected>%</option>
+                                <option value="gbs">GB/s</option>
+                                <option value="mbs">MB/s</option>
+                                <option value="kbs">KB/s</option>
+                            </select>
+                        </div>
+                    </div>
+                    <!--End Specify Bandwidth Resource Usage-->
+
+                    <!--Begin Target Clock Rate-->
+                    <div>
+                        <label style="cursor:default;">What is the target clock rate (in MHz) for your CNN on your FPGA?
+                            <span
+                                    data-role="hint"
+                                    data-hint-background="bg-amber"
+                                    data-hint-position="right"
+                                    data-hint-color="fg-white"
+                                    data-hint-mode="2"
+                                    data-hint="|The target clock rate you want your CNN to run at on your FPGA">
+                                <span class="v-align-super question">(?)</span>
+                            </span>
+                        </label>
+                        <br/>
+
+                        <div class="input-control text">
+                            <input type="number" name="tcr" id="tcr" placeholder="Target Clock Rate (MHz)">
+                        </div>
+                    </div>
+                    <!--End target clock rate-->
+
+                    <!--Begin Arithmatic Unit ...-->
+                    <!--End Arithmatic Unit...-->
+
+                    <!--***-->
+                    <!--End FPGA Resource Usage-->
+                    <!--***-->
+
+                    <!--Begin Submit-->
+                    <div class="form-actions" style="margin-top:10px;">
+                        <button type="submit" id="generateButton" class="button success">Generate</button>
+                        <!--<button type="button" class="button link">Cancel</button>-->
+                        <label class="red" id="xhrError"></label>
+
+                    </div>
+                    <!--End Submit-->
+                </form>
+                <!--End Form-->
+            </div>
+        </div>
+        <div class="cell">      <!--Displaying Images of the Network-->
+        </div>
+    </div>
+</div> <!-- /container -->
+<div style="margin:30px;">
+</div>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
+<script src="js/vendor/jquery-ui.min.js"></script>
+<!--<script src="js/vendor/bootstrap.min.js"></script>-->
+<script src="js/vendor/metro.min.js"></script>
+<script src="http://cdn.jsdelivr.net/jquery.validation/1.15.1/jquery.validate.js"></script>
+<script src="js/vendor/mermaid.min.js"></script>
+<script src="js/main.js"></script>
+<script>
+    $.fn.serializeObject = function () {
+        var o = {};
+        var a = this.serializeArray();
+        $.each(a, function () {
+            if (o[this.name] !== undefined) {
+                if (!o[this.name].push) {
+                    o[this.name] = [o[this.name]];
+                }
+                o[this.name].push(this.value || '');
+            } else {
+                o[this.name] = this.value || '';
+            }
+        });
+        return o;
+    };
+
+    var FPGAUrl = 'predefined_fpgas.txt';
+    $.get(FPGAUrl, function (data) {
+        addFPGA(data)
+    }, 'text');
+
+    function addFPGA(allBoards) {
+        var optionsHtml = '';
+        var allBoardsJson = $.parseJSON('[' + allBoards + ']');     //on the serverside do this to make the option value into a json object
+        $.each(allBoardsJson, function (index, jsonObj) {     //iterate through the array of json objects
+            optionsHtml += "<option value='" + JSON.stringify(jsonObj) + "' data-dsp='" + jsonObj.DSP + "' data-bram='" + jsonObj.BRAM + "' data-bramUnit='" + jsonObj.Unit_Size + "'>" + jsonObj.Board + "</option>";
+        });
+        $('#fpgaBoard').append(optionsHtml);
+    }
+
+
+    var CNNUrl = 'predefined_cnns.txt';
+    $.get(CNNUrl, function (data) {
+        addCNN(data)
+    }, 'text');
+
+    function addCNN(allCNNs) {  //adds the predefined CNNs from the text file
+        var optionsHtml = '';
+        var allCNNsJson = $.parseJSON('[' + allCNNs + ']');
+        $.each(allCNNsJson, function (index, jsonObj) {     //iterate through the array of json objects
+            $.each(jsonObj.layers, function (index, objLayer) {
+                //first we have to add the semantics to make this readable by mermaid
+                var predefLayerString = '';  // the string to be displayed on the node in the flow chart
+                var objLayerID = index;
+                predefLayerString += 'ID: ' + objLayerID + ', ';
+                for (var key in objLayer) {
+                    predefLayerString += key + ': ' + objLayer[key] + ', ';  //objLayer[key] is the value, key is the name (like Count, S, I, O, etc.)
+                }
+                objLayer.layerString = predefLayerString.substring(0, predefLayerString.length - 2); //substring to get rid of the comma at the last element
+                objLayer.layerID = objLayerID;
+                if (index === 0) {
+                    objLayer.layerParent = [];
+                }
+                else {
+                    objLayer.layerParent = [index - 1]; //the parent for a layer is its layer id - 1 in our case
+                }
+            });
+            //now we add the option so it can be serialized
+            console.log('at json obj');
+            console.log(jsonObj);
+            optionsHtml += "<option data-custom='0' value='" + JSON.stringify(jsonObj) + "'>" + jsonObj.cnnName + "</option>";
+        });
+        $('#cnnSelect').append(optionsHtml);
+    }
+    function finishedGenerating() {
+        var $generateButton = $('#generateButton');
+        $generateButton.removeClass('disabled');
+        $generateButton.addClass('success');
+        $generateButton.text('Generate');
+    }
+    $('#copyright').append(new Date().getFullYear());
+    var $mainForm = $("#mainForm");
+    $mainForm.on('submit', function (event) {
+        if ($('#generateButton').hasClass('disabled')) { //if it's disabled, then nothing can happen
+            event.preventDefault();
+            return;
+        }
+        $.validator.addMethod('oneormorelayers', function (value, element) {
+            return $('#cnnSelect').val() != 'custom' || layersArray.length > 0;
+        }, 'You must have at least 1 layer');
+        $mainForm.validate({        //validation methods: https://jqueryvalidation.org/documentation/#link-list-of-built-in-validation-methods
+            errorPlacement: function (error, element) {
+                element.parent().parent().children('label').last().after(error);
+            },
+            errorClass: 'red',
+            rules: {
+                fpgaBoard: {
+                    required: true
+                },
+                tcr: {
+                    required: true
+                },
+                bandwidth: {
+                    required: true,
+                    digits: true
+                },
+                dspResources: {
+                    required: true,
+                    digits: true
+//                    range: [0,100]
+                },
+                bramResources: {
+                    required: true,
+                    digits: true
+//                    range: [0,100]
+                },
+                bandwidthResources: {
+                    required: true,
+                    digits: true
+//                    range: [0,100]
+                },
+                arithUnit: {
+                    required: true,
+                    digits: true
+                }
+            }
+        });
+        var isNotCustomBoard = $('#fpgaBoard').val() != 'custom';
+        if (isNotCustomBoard) {
+            $("input[name=dsp]").rules("remove", "required digits");
+            $("input[name=bram]").rules("remove", "required digits");
+        }
+        else {
+            $("input[name=dsp]").rules("add", "required digits");
+            $("input[name=bram]").rules("add", "required digits");
+        }
+        var isvalidate = $("#mainForm").valid();
+        if (!isvalidate) {
+            event.preventDefault();
+            return;
+        }
+        var fpgaData = $('#fpgaBoard').find(':selected');
+        var $dsp = $('#dsp');
+        var $bram = $('#bram');
+        var $bramUnits = $('#bramUnits');
+//        if ($('#cnnSelect').find(':selected').data('custom') == '1') {  //if it's custom, add this info so we can stringify and add it to input and send it when teh form is serialized
+        var network = {
+            "cnnName": $('#cnnSelect').find('option:selected').text(),
+            "layers": layersArray
+        };
+        $('#cnnSelect').find(':selected').val(JSON.stringify(network)); //add the stringified network and layers to the cnnselect field so it can be sent when the form is serialized. if the cnn isn't custom, then it'll already have the value as the layers
+//        }
+        if (isNotCustomBoard) { //then they are not entering in any parameters so disabled the custom fields
+            $dsp.attr('disabled', false);
+            $bram.attr('disabled', false);
+            $bramUnits.attr('disabled', false);
+            $dsp.val(fpgaData.data('dsp'));
+            $bram.val(fpgaData.data('bram'));
+            $bramUnits.val(fpgaData.data('bramunit').toLowerCase());
+        }
+        var formData = JSON.stringify($(this).serializeObject());
+        var $generateButton = $('#generateButton');
+        if (isNotCustomBoard) {
+            $dsp.attr('disabled', true);
+            $bram.attr('disabled', true);
+            $bramUnits.attr('disabled', true);
+        }
+        $generateButton.addClass('disabled');
+        $generateButton.removeClass('success');
+        $generateButton.text('Generating...');
+        $.ajax({
+            url: '/sendFormData',
+            type: 'POST',
+            contentType: 'application/json',
+            data: formData,
+            success: function (response) {
+                console.log('response');
+                console.log(response);
+                switch (response) {
+                    case 'unique':
+                    {    //this combination or any similar ones have not been created before
+                        break;
+                    }
+                    case 'cached':
+                    {    //the combo they wanted was cached, so here it is
+                        var code = response.networks;   //sorry for the bad object name
+                        break;
+                    }
+                    case 'similar':
+                    {
+                        var similarNets = response.networks;    //an array of network objects. to see what an object would look like, see the "generation object" text file
+                        break;
+                    }
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log(xhr.responseText);
+                $('#xhrError').html('<p>' + xhr.responseText + '</p>');
+            }
+        });
+        event.preventDefault();
+    });
+    var $customDetails = $('#customFpgaDetails');
+    $('#fpgaBoard').on('change', function () {
+        if ($(this).val() == 'custom') {
+            $('#dsp').val('');
+            $('#bram').val('');
+            $('#bramUnits').val('18kbit');
+            $customDetails.find('input').attr('disabled', false);
+            $customDetails.find('select').attr('disabled', false);
+        }
+        else {
+            var fpgaData = $('#fpgaBoard').find(':selected');
+            $('#dsp').val(fpgaData.data('dsp'));
+            $('#bram').val(fpgaData.data('bram'));
+            $('#bramUnits').val(fpgaData.data('bramunit').toLowerCase());
+            $customDetails = $('#customFpgaDetails');
+            $customDetails.find('input').attr('disabled', true);
+            $customDetails.find('select').attr('disabled', true);
+//            $('#dsp').val($(this).data('dsp'));
+//            $('#bram').val($(this).data('bram'));
+//            $('#bramUnits').val($(this).data('bramUnit'));
+        }
+    });
+    var $layerSelect = $('#layerSelect');
+    $layerSelect.on('change', function () {  //when they choose a CNN, create a flowchart for it
+        var currentSelected = $layerSelect.find('option:selected').attr('id');
+        var inputs = $('#cnnOptions').find('input:enabled');
+        var $layerInputs = $('#layerInputs');
+        for (var i = 0; i < inputs.length; i++) {
+            if ($(inputs[i]).attr('id') === 'layerParent') {
+                inputs = inputs.splice(i, 1);
+                i--;
+            }
+        }
+        switch (currentSelected) {
+            case 'convLayer':
+            {
+                $layerInputs.html('');
+                $layerInputs.load('layersHtml/convolutional.html');
+                break;
+            }
+            case 'paddingLayer':
+            {
+                $layerInputs.html('');
+                $layerInputs.load('layersHtml/padding.html');
+                break;
+            }
+            case 'subSampleLayer':
+            {
+                $layerInputs.html('');
+                $layerInputs.load('layersHtml/subSampling.html');
+                break;
+            }
+        }
+    });
+
+    var $cnnSelect = $('#cnnSelect');
+    var storeCNN = '';
+    var pastValue = '';
+    var pastCustom = false;
+    var storedNetworks = {};
+    var pastSelected = $cnnSelect.find('option:selected').text();   //"custom" is the selected option by default
+    $cnnSelect.on('change', function () {  //when they choose a CNN, create a flowchart for it
+        var currentSelected = $cnnSelect.find('option:selected').text();
+        storedNetworks[pastSelected] = layersArray;    //store their current setup in an object so that each time this option is selected, their setup shows up
+        layersArray = storedNetworks[currentSelected];
+        var isCustom = $cnnSelect.find(':selected').data('custom') == '1'; //determines whether current layer is custom
+        if (isCustom && !pastCustom) {   //if they chose custom and didn't just choose custom twice in a row by accident, then display their custom cnn.
+            $layerFlow.html(translateToMermaid(layersArray));
+            $layerFlow.removeAttr('data-processed');
+            mermaid.init({}, $layerFlow);
+        }
+        else {  //if they didn't choose custom
+            if (storedNetworks[currentSelected] === undefined) { //then we never stored anything for this predefined network
+                storedNetworks[currentSelected] = $.parseJSON($(this).val()).layers;
+            }
+            layersArray = storedNetworks[currentSelected];
+//            var currentNetwork = $(this).val();    //the stringified json object for the layers and network
+//            currentNetwork = $.parseJSON(currentNetwork).layers;  //the array of json objects for all the layers
+//            layersArray = currentNetwork;
+            $layerFlow.html(translateToMermaid(layersArray));
+            $layerFlow.removeAttr('data-processed');
+            mermaid.init({}, $layerFlow);
+        }
+
+        if (layersArray.length > 0 || !isCustom) {    //then make the parent field not disabled
+            $("#parentID").prop('disabled', false);
+//            $("#childID").prop('disabled', false);
+        }
+        else {
+            $("#parentID").prop('disabled', true);
+//            $("#childID").prop('disabled', true);
+        }
+        pastSelected = currentSelected;
+        pastCustom = isCustom;  //"past" since the next time we use these variables, the select would have changed so this will be the past
+    });
+
+    function checkInputsAlone(inputs) { //just check the inputs not including the parent input
+        var returnFalse = false;
+        $.each(inputs, function (index, currentInput) {
+            if ($(currentInput).attr('id') != 'parentID') { //we already checked the parentID field above with the isParentError
+                var currentVal = $(currentInput).val();
+                if (currentVal == '' || !$.isNumeric(currentVal)) {
+                    returnFalse = true;
+                    return false;   //return false breaks out of an each loop
+                }
+            }
+        });
+        return !returnFalse;
+    }
+
+    function checkInputs(inputs) {
+//        console.log('is parent error?');
+//        console.log(isParentError());
+        if (isParentError()) {
+            return false;
+        }
+        var returnFalse = false;
+        $.each(inputs, function (index, currentInput) {
+            if ($(currentInput).attr('id') != 'parentID') { //we already checked the parentID field above with the isParentError
+                var currentVal = $(currentInput).val();
+                if (currentVal == '' || !$.isNumeric(currentVal)) {
+                    returnFalse = true;
+                    return false;   //return false breaks out of an each loop
+                }
+            }
+        });
+        return !returnFalse;
+    }
+
+    function isParentError() {   //check to see if the parent ID the user gave exists in the array of layers
+        var $parentID = $('#parentID');
+        if ($parentID.prop('disabled') == true) {    //if it's disabled then it's the first input
+            console.log('disabled');
+            return false;
+        }
+        var parentVal = $parentID.val();
+        if (parentVal == '') {
+            console.log('parent val quotes');
+            return true;
+        }
+        var returnFalse = false;
+        $.each(layersArray, function (index, currentObj) {
+//            console.log('layerID: ' + currentObj.layerID);
+//            console.log('entered ID: ' + parentVal);
+//            console.log('equal? ' + parseInt(currentObj.layerID) === parseInt(parentVal));
+            if (parseInt(currentObj.layerID) === parseInt(parentVal)) {
+//                console.log('will return false');
+                returnFalse = true;
+                return false;
+            }
+        });
+        return !returnFalse;
+//        return !layersArray.some(function(el) {     //make it not because it returns false if there are no matches for layerID and parentID
+//            console.log('layerID: ' + el.layerID);
+//            console.log('entered ID: ' + $parentID.val());
+//            return el.layerID == $parentID.val();
+//        });
+    }
+
+    function isInArrayOfObj(searchArray, searchVal, searchKey) { //search an array of objects for a value
+        return $.grep(searchArray, function (e) {
+                    return e[searchKey] == searchVal;
+                }).length > 0;
+    }
+    //subsampling: size of sample, stride
+    //padding: width
+    function translateToMermaid(networkArray) {  //where network array is an array of layer objects
+        var mermaidString = 'graph TD;';
+        var nodeIDs = [];
+        var linkCount = 0;
+        $.each(networkArray, function (index, layerObject) {
+            mermaidString += layerObject.layerID + '[' + layerObject.layerString + '];';
+            nodeIDs.push(layerObject.layerID);
+            if (layerObject.layerParent != [] && layerObject.layerParent != undefined) {     //if the layer actually has a parent
+                for (var i = 0; i < layerObject.layerParent.length; i++) {  //there can be multiple parents
+                    mermaidString += layerObject.layerParent[i] + '-->' + layerObject.layerID + ';';    //add the node link
+                    linkCount += 1;
+                }
+            }
+//            if (layerObject.childID != [] && layerObject.childID != undefined){     //if the layer actually has a parent
+//                for (var i = 0; i < layerObject.childID.length; i++) {  //there can be multiple parents
+//                    mermaidString += layerObject.layerID + '-->' + layerObject.childID + ';';    //add the node link
+//                    linkCount += 1;
+//                }
+//            }
+        });
+        return mermaidString;
+    }
+
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+//    graph TD;
+//    1[1];
+//    2[2];
+//    3[3];
+//    1-->2;
+//    1-->3;
+//    linkStyle 0 fill:#F00,stroke:#F00,stroke-width:2px;
+//    linkStyle 1 fill:#F00,stroke:#F00,stroke-width:2px;
+//    classDef nodeStyle fill:#00F,stroke:#333,stroke-width:2px;
+//    class 1,2,3 nodeStyle;
+//
+
+    var linkFillColor = '#F00';
+    var linkStrokeColor = '#F00';
+    var linkStrokeWidth = '2px';
+    var nodeClass = 'nodeStyle';
+    var nodeFillColor = '#00F';
+    var nodeStrokeColor = '#333';
+    var nodeStrokeWidth = '2px';
+    function translateToMermaid(networkArray){  //where network array is an array of layer objects
+        var mermaidString = 'graph TD;';
+        var nodeIDs = [];
+        var linkCount = 0;
+        $.each(networkArray, function(index, layerObject){
+            mermaidString += layerObject.layerID + '[' + layerObject.layerString + '];';
+            nodeIDs.push(layerObject.layerID);
+            if (layerObject.layerParent != ''){     //if the layer actually has a parent
+                mermaidString += layerObject.layerParent + '-->' + layerObject.layerID + ';';    //add the node link
+                linkCount += 1;
+            }
+        });
+        return mermaidString;
+    }
+
+    mermaid.initialize({});
+    var layersArray = [];    //an array to hold all the layers of the network
+    var $layerFlow = $('#layerFlow');
+    var layerID = 0;    //to identify and choose layers
+    var $addLayersButton = $('#addLayerButton');
+    $addLayersButton.click(function (e) {
+        e.preventDefault();
+        var inputs = $('#cnnOptions').find('input:enabled');
+        var errorExists = $('#addLayersError').length;
+        if (checkInputs(inputs)) {  //if their inputs are valid (no empty strings and only numbers)
+            if (errorExists) {  //if there's an error message, then remove it since they don't have that error anymre
+                $('#addLayersError').remove();
+            }
+<<<<<<< HEAD
+            console.log('status 1');
+            var layerObj = {};
+            var layerParent = [];
+//            var childID = [];
+            //find a layer ID that doesn't exist yet
+            if (layersArray.length > 0) {   //if there is at least one item in the array, find a good id. otherwise just maek it 0
+                layerID = layersArray[layersArray.length - 1].layerID + 1;
+                while (isInArrayOfObj(layersArray, layerID, 'layerID')) {   //find a unique layerID
+                    layerID += 1;
+                }
+                //now we parse the layer parents
+                layerParent = $('#parentID').val().split(',');
+//                childID = $('#childID').val().split(',');
+                for (var i = 0; i < layerParent.length; i++) {
+                    layerParent[i] = parseInt(layerParent[i].trim()); //get rid of the whitespaces in the number
+                }
+//                for (var i = 0; i < childID.length; i++){
+//                    childID[i] = parseInt(childID[i].trim()); //get rid of the whitespaces in the number
+//                }
+            }
+            layerObj['layerParent'] = layerParent;
+//            layerObj['childID'] = childID;
+            layerObj['layerID'] = layerID;//now that we've found a valid id, put it in the object
+            var layerString = 'ID: ' + layerID + ', ';
+            $.each(inputs, function (index, layerInput) {
+                var inputVal = $(layerInput).val();
+                var inputKey = $(layerInput).attr('id');
+                console.log('input key');
+                console.log(inputKey);
+                if (inputKey !== 'parentID') {
+                    layerObj[inputKey] = inputVal;
+                }
+                if (inputKey !== 'parentID') { //we already declared layerParent above,  //don't add the parentID to the string that is displayed in the flow chart
+                    layerString += capitalizeFirstLetter(inputKey) + ': ' + inputVal + ', ';
+                }
+            });
+            layerString = layerString.substring(0, layerString.length - 2); //get rid of the last comma
+            layerObj['layerString'] = layerString;
+//            var Count = $("#count").val();
+//            var I = $("#i").val();
+//            var O = $("#o").val();
+//            var R = $("#r").val();
+//            var C = $("#c").val();
+//            var K = $("#k").val();
+//            var S = $("#s").val();
+//            var layerString = 'ID: ' + layerID + ', Count: ' + Count + ', I: ' + I + ', O: ' + O + ', R: ' + R + ', C: ' + C + ', K: ' + K + ', S: ' + S;    //the text to be on the node in the flowchart for this layer
+//            layerObj = {
+//                "Count": Count,
+//                "O": O,
+//                "I": I,
+//                "R": R,
+//                "C": C,
+//                "K": K,
+//                "S": S,
+//                "layerParent": layerParent,
+//                "layerString": layerString,
+//                "layerID": layerID
+//            };
+            layerID += 1;
+            $("#parentID").prop('disabled', false);
+//            $("#childID").prop('disabled',  false);
+=======
+            console.log('1');
+
+            var Count = $("#count").val();
+            var I =$("#i").val();
+            var O =  $("#o").val();
+            var R = $("#r").val();
+            var C = $("#c").val();
+            var K = $("#k").val();
+            var S = $("#s").val();
+            var layerString = 'ID: ' + layerID + ' Count: ' + Count + ', I: ' + I + ', O: ' + O + ', R: ' + R + ', C: ' + C + ', K: ' + K + ', S: ' + S;    //the text to be on the node in the flowchart for this layer
+            var layerObj = {
+                "Count": Count,
+                "O": O,
+                "I": I,
+                "R": R,
+                "C": C,
+                "K": K,
+                "S": S,
+                "layerParent": $('#parentID').val(),
+                "layerString": layerString,
+                "layerID": layerID
+            };
+            layerID += 1;
+            $("#parentID").prop('disabled',  false);
+>>>>>>> b6fcecf... bare minimum visual display for flowchart
+            layersArray.push(layerObj);
+            var mermaidChart = translateToMermaid(layersArray);
+            $layerFlow.html(mermaidChart);
+            $layerFlow.removeAttr('data-processed');
+            mermaid.init({}, $layerFlow);
+            inputs.val('');
+        }
+        else {
+            if (errorExists) {    //leave this in case you want to ever add a jquery UI shake
+                console.log('status 2');
+                //check if there is only one error but the wrong error message is displayed
+                if (isParentError() && checkInputsAlone(inputs) && $('.fillError')[0]) {  //if there is a parent error, no unfilled field error, yet the unfield errorm essage is still there...
+                    console.log('status 4');
+                    $('.fillError').remove();
+                    $('#cnnOptionsLabel').after('<span class="parentIDError" id="addLayersError" style="color:red"">The Parent ID you entered does not match any layers</span>');
+                }
+                else if (!isParentError() && !checkInputsAlone(inputs) && $('.parentIDError')[0]) { //if there isn't a parent error and there is an unfilled field error but the parentIDError message is still there...
+                    console.log('status 5');
+                    $('.parentIDError').remove();
+                    $('#cnnOptionsLabel').after('<span class="fillError" id="addLayersError" style="color:red"">All inputs must be filled and contain numeric values</span>');
+                }
+            }
+            else {   //if the inputs are invalid and the message doesn't already exist
+                console.log('status 3');
+                if (isParentError()) {
+                    $('#cnnOptionsLabel').after('<span class="parentIDError" id="addLayersError" style="color:red"">The Parent ID you entered does not match any layers</span>');
+                }
+                else {
+                    $('#cnnOptionsLabel').after('<span class="fillError" id="addLayersError" style="color:red"">All inputs must be filled and contain numeric values</span>');
+                }
+            }
+        }
+    });
+
+</script>
+</body>
+</html>
+
+
+<!--<div>-->
+<!--<label>-->
+<!--Target Clock Rate (MHz)-->
+<!--<span   -->
+<!--data-role="hint"-->
+<!--data-hint-background="bg-amber"-->
+<!--data-hint-position="right"-->
+<!--data-hint-color="fg-white"-->
+<!--data-hint-mode="2"-->
+<!--data-hint="|The rate that the FPGA performs internal operations. Higher TCR means higher performance but requires a higher quality FPGA.">-->
+<!--<span style="color:gray">(?)</span>-->
+<!--</span>-->
+<!--</label>-->
+<!--<br/>-->
+<!--<label class="input-control radio small-check">-->
+<!--<input name="tcr" id="tcrNormal" value="normal" checked="checked" type="radio">-->
+<!--<span class="check"></span>-->
+<!--<span class="caption">Normal</span>-->
+<!--</label>-->
+<!--<label class="input-control radio small-check">-->
+<!--<input name="tcr" id="tcrFast" value="fast" type="radio">-->
+<!--<span class="check"></span>-->
+<!--<span class="caption">As Fast as Possible</span>-->
+<!--</label>-->
+<!--<label class="input-control radio small-check">-->
+<!--<input name="tcr" id="tcrCustom" value="tcrCustom" type="radio">-->
+<!--<span class="check"></span>-->
+<!--<span class="caption">Custom</span>-->
+
+<!--<div class="input-control text" id="tcrInputDiv" style="display:none">-->
+<!--<input type="number" id="tcrInput" name="tcrInput" placeholder="Target Clock Rate(MHz)">-->
+<!--</div>-->
+<!--</label>-->
+<!--</div>-->
+<!--&lt;!&ndash;End Target Clock Rate&ndash;&gt;-->
+<!--Begin Checkbox-->
+<!--<div>-->
+<!--<label>Example Checkboxes-->
+<!--<span-->
+<!--data-role="hint"-->
+<!--data-hint-background="bg-amber"-->
+<!--data-hint-position="right"-->
+<!--data-hint-color="fg-white"-->
+<!--data-hint-mode="2"-->
+<!--data-hint="|Hint text.">-->
+<!--<span style="color:gray">(?)</span>-->
+<!--</span>-->
+<!--</label>-->
+<!--<br/>-->
+<!--<label class="input-control checkbox">-->
+<!--<input name="checkboxName" value="1" type="checkbox" checked>-->
+<!--<span class="check"></span>-->
+<!--<span class="caption">Checkbox 1</span>-->
+<!--</label>-->
+<!--<label class="input-control checkbox">-->
+<!--<input name="checkboxName" value="2" type="checkbox">-->
+<!--<span class="check"></span>-->
+<!--<span class="caption">Checkbox 2</span>-->
+<!--</label>-->
+<!--<label class="input-control checkbox">-->
+<!--<input name="checkboxName" value="3" type="checkbox">-->
+<!--<span class="check"></span>-->
+<!--<span class="caption">Checkbox 3</span>-->
+<!--</label>-->
+<!--</div>-->
+<!--End Checkbox-->

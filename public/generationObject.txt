@@ -1,0 +1,61 @@
+    DSP: 2800
+BRAM: 2060
+Unit_Size: 18kbit
+Bandwidth: 9
+Bandwidth Unit: gbs
+Target Clock Rate: 9
+DSP Resource Usage Amount: 9
+DSP Resource Unit: percent
+BRAM Resource Usage Amount: percent
+BRAM Resource Unit: percent
+Bandwidth Resource Usage Amount: percent
+Bandwidth Resource Unit: percent
+CNN Layers: [object Object],[object Object],[object Object],[object Object],[object Object]
+Here is what those objects above look like: 
+[
+    {
+        "Count": "2",
+        "I": "3",
+        "O": "48",
+        "R": "55",
+        "C": "55",
+        "K": "11",
+        "S": "4"
+    },
+    {
+        "Count": "2",
+        "I": "48",
+        "O": "128",
+        "R": "27",
+        "C": "27",
+        "K": "5",
+        "S": "1"
+    },
+    {
+        "Count": "2",
+        "I": "256",
+        "O": "192",
+        "R": "13",
+        "C": "13",
+        "K": "3",
+        "S": "1"
+    },
+    {
+        "Count": "2",
+        "I": "192",
+        "O": "192",
+        "R": "13",
+        "C": "13",
+        "K": "3",
+        "S": "1"
+    },
+    {
+        "Count": "2",
+        "I": "192",
+        "O": "128",
+        "R": "13",
+        "C": "13",
+        "K": "3",
+        "S": "1"
+    }
+]

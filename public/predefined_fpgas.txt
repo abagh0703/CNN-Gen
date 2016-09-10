@@ -1,0 +1,12 @@
+{
+    "Board": "485T",
+	"DSP": 2800,
+	"BRAM": 2060,
+	"Unit_Size": "18KBit"
+},
+{
+    "Board": "690T",
+	"DSP": 3600,
+	"BRAM": 2940,
+	"Unit_Size": "18KBit"
+}
