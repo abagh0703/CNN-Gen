@@ -1,5 +1,8 @@
 #include <vector>
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <iterator>
 #include <cstdlib>
 #include <cassert>
 #include <cmath>
@@ -58,9 +61,7 @@ private:
 double Neuron::eta = .15; // [0.0..1.0] overall net training rate
 double Neuron::alpha = .5; // [0.0...n] multiplier of last weight change (momentum)
 
-/*
- * Updates the connection weights for each neuron in the provided layer.
- */
+// Updates the connection weights for each neuron in the provided layer.
 void Neuron::updateInputWeights(Layer &prevLayer) {
 
 	for (unsigned n = 0; n < prevLayer.size(); ++n) {
@@ -77,9 +78,7 @@ void Neuron::updateInputWeights(Layer &prevLayer) {
 
 }
 
-/*
- * 
- */
+// 
 double Neuron::sumDOW(const Layer &nextLayer) const {
 
 	double sum = 0.0;
@@ -95,6 +94,7 @@ double Neuron::sumDOW(const Layer &nextLayer) const {
 
 }
 
+// 
 void Neuron::calcHiddenGradients(const Layer &nextLayer) {
 
 	double dow = sumDOW(nextLayer);
@@ -102,6 +102,7 @@ void Neuron::calcHiddenGradients(const Layer &nextLayer) {
 
 }
 
+// 
 void Neuron::calcOutputGradients(double targets) {
 
 	double delta = targets - m_output;
@@ -109,6 +110,7 @@ void Neuron::calcOutputGradients(double targets) {
 
 }
 
+// 
 double Neuron::transferFunction(double x) {
 
 	// tanh - output range [-1.0..1.0]
@@ -116,6 +118,7 @@ double Neuron::transferFunction(double x) {
 
 }
 
+// 
 double Neuron::transferFunctionDerivative(double x) {
 
 	// tanh derivative
@@ -123,6 +126,7 @@ double Neuron::transferFunctionDerivative(double x) {
 
 }
 
+// Apply the calculations to the inputs
 void Neuron::feedForward(const Layer &prevLayer) {
 
 	double sum = 0.0;
@@ -137,6 +141,7 @@ void Neuron::feedForward(const Layer &prevLayer) {
 
 }
 
+// Initialize a neuron
 Neuron::Neuron(unsigned numOutputs, unsigned myIndex) {
 
 	for (unsigned c = 0; c < numOutputs; ++c) {
@@ -171,6 +176,7 @@ private:
 
 };
 
+// Stores the outputs to the result vector
 void Net::getResults(vector<double> &result) const {
 
 	result.clear();
@@ -182,6 +188,7 @@ void Net::getResults(vector<double> &result) const {
 	}
 }
 
+// Calculate the changes to the inputs
 void Net::backProp(const vector<double> &targets) {
 
 	// calculate overall net error (RMS of output neuron error)
@@ -239,6 +246,7 @@ void Net::backProp(const vector<double> &targets) {
 
 }
 
+// Feed the inputs to the neural net
 void Net::feedForward(const vector<double> &inputs) {
 
 	assert(inputs.size() == m_layers[0].size() - 1);
@@ -263,9 +271,7 @@ void Net::feedForward(const vector<double> &inputs) {
 
 }
 
-/*
- * Initializes the neural net.
- */
+// Initializes the neural net.
 Net::Net(const vector<unsigned> &topology) {
 
 	unsigned numLayers = topology.size();
@@ -292,19 +298,66 @@ Net::Net(const vector<unsigned> &topology) {
 
 }
 
+// ******************* struct (class) JSON parser ************************
+// Unfinished
+struct Parser {
+
+public:
+	Parser(const string filename);
+	void getTopology();
+
+private:
+	ifstream m_trainingFile;
+	vector<unsigned> topology;
+
+};
+
+// Unfinished
+void Parser::getTopology() {
+
+	std::string line;
+	std::string label;
+
+	getline(m_trainingFile, line);
+	std::stringstream ss(line);
+	ss >> label;
+
+	while (!ss.eof()) {
+		unsigned n;
+		ss >> n;
+		topology.push_back(n);
+	}
+
+	return;
+
+}
+
+// Opens the file
+Parser::Parser(const string filename) {
+
+	m_trainingFile.open(filename);
+	if (m_trainingFile.is_open()) {
+		cout << "Ready" << endl;
+	}
+
+}
+
 
 int main() {
 
 	vector<unsigned> topology;
-	Net myNet(topology);
+	Parser jp("./And.txt");
+	jp.getTopology();
 
-	vector<double> inputs;
-	myNet.feedForward(inputs);
+	//Net myNet(topology);
 
-	vector<double> targets;
-	myNet.backProp(targets);
+	//vector<double> inputs;
+	//myNet.feedForward(inputs);
 
-	vector<double> result;
-	myNet.getResults(result);
+	//vector<double> targets;
+	//myNet.backProp(targets);
+
+	//vector<double> result;
+	//myNet.getResults(result);
 
 }
